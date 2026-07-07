@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GesturePlay - AI Rock Paper Scissors</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- MediaPipe Hands & Camera Utils -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Particle Background Container -->
+  <div id="particle-container"></div>
+
+  <!-- Main App Wrapper -->
+  <main class="app-container">
+    
+    <!-- Header / Branding -->
+    <header class="app-header">
+      <div class="logo">
+        <i data-lucide="cpu" class="logo-icon"></i>
+        <h1>GesturePlay <span class="neon-badge">AI</span></h1>
+      </div>
+      <p class="subtitle">Show your hand to the camera to play against the computer!</p>
+    </header>
+
+    <!-- Content Grid -->
+    <div class="game-grid">
+      
+      <!-- Left Column: Camera Viewport -->
+      <section class="viewport-card glass-panel">
+        <div class="card-header">
+          <div class="status-indicator">
+            <span class="pulse-dot idle" id="status-dot"></span>
+            <span id="status-text">Webcam Inactive</span>
+          </div>
+          <button id="toggle-audio-btn" class="icon-btn" title="Toggle Sound">
+            <i data-lucide="volume-2"></i>
+          </button>
+        </div>
+
+        <div class="camera-wrapper">
+          <!-- The live webcam video (hidden or underneath canvas) -->
+          <video id="webcam" autoplay playsinline muted></video>
+          <!-- Drawing canvas showing hand landmarks overlay -->
+          <canvas id="canvas-overlay"></canvas>
+          
+          <!-- Overlays depending on state -->
+          <div id="overlay-screen" class="overlay-screen active">
+            <div class="overlay-content" id="overlay-lobby">
+              <i data-lucide="video" class="lobby-icon"></i>
+              <h3>Ready to Play?</h3>
+              <p>We'll need camera access to detect your hand gestures.</p>
+              <button id="start-camera-btn" class="btn primary-btn">
+                <i data-lucide="play"></i> Start Camera
+              </button>
+            </div>
+            
+            <div class="overlay-content hidden" id="overlay-loading">
+              <div class="spinner"></div>
+              <h3>Initializing AI Model</h3>
+              <p>Loading hand gesture recognition framework...</p>
+            </div>
+
+            <div class="overlay-content hidden" id="overlay-countdown">
+              <h2 id="countdown-number" class="countdown-text">3</h2>
+            </div>
+          </div>
+        </div>
+
+        <!-- Camera Actions -->
+        <div class="camera-controls">
+          <button id="play-round-btn" class="btn primary-btn" disabled>
+            <i data-lucide="zap"></i> Start Round
+          </button>
+          <button id="reset-game-btn" class="btn outline-btn">
+            <i data-lucide="rotate-ccw"></i> Reset Scores
+          </button>
+        </div>
+      </section>
+
+      <!-- Right Column: Game State & Matchup -->
+      <section class="matchup-container">
+        
+        <!-- Scoreboard -->
+        <div class="scoreboard glass-panel">
+          <div class="score-card">
+            <span class="label">PLAYER</span>
+            <span class="score" id="player-score">0</span>
+          </div>
+          <div class="score-divider">
+            <span class="round-number" id="round-text">ROUND 1</span>
+            <div class="draw-counter">Draws: <span id="draw-score">0</span></div>
+          </div>
+          <div class="score-card">
+            <span class="label">AI BOT</span>
+            <span class="score" id="ai-score">0</span>
+          </div>
+        </div>
+
+        <!-- The Versus Board -->
+        <div class="versus-board glass-panel">
+          <div class="versus-card" id="player-card">
+            <div class="card-title">YOU</div>
+            <div class="gesture-icon-placeholder" id="player-gesture-icon">
+              <i data-lucide="user" class="placeholder-svg"></i>
+            </div>
+            <div class="gesture-label" id="player-gesture-label">Detecting...</div>
+          </div>
+
+          <div class="vs-text">VS</div>
+
+          <div class="versus-card" id="ai-card">
+            <div class="card-title">AI</div>
+            <div class="gesture-icon-placeholder" id="ai-gesture-icon">
+              <i data-lucide="bot" class="placeholder-svg"></i>
+            </div>
+            <div class="gesture-label" id="ai-gesture-label">Waiting...</div>
+          </div>
+        </div>
+
+        <!-- Results Card -->
+        <div class="result-banner glass-panel hidden" id="result-banner">
+          <div class="result-title" id="result-verdict">PLAYER WINS!</div>
+          <div class="result-desc" id="result-reason">Paper beats Rock</div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="app-footer">
+    <p>Powered by local browser-based computer vision. Hand gesture data never leaves your device.</p>
+  </footer>
+
+  <!-- App Code -->
+  <script src="app.js"></script>
+</body>
+</html>
