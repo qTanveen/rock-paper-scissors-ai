@@ -67,7 +67,7 @@ const resultReason = document.getElementById('result-reason');
 
 // Icons Mapping
 const GESTURE_ICONS = {
-  Rock: '<i data-lucide="fist" style="width: 2.5rem; height: 2.5rem; color: var(--primary);"></i>',
+  Rock: '<i data-lucide="hand-fist" style="width: 2.5rem; height: 2.5rem; color: var(--primary);"></i>',
   Paper: '<i data-lucide="hand" style="width: 2.5rem; height: 2.5rem; color: var(--success);"></i>',
   Scissors: '<i data-lucide="scissors" style="width: 2.5rem; height: 2.5rem; color: var(--accent);"></i>',
   None: '<i data-lucide="help-circle" style="width: 2.5rem; height: 2.5rem; color: var(--text-muted);"></i>',
