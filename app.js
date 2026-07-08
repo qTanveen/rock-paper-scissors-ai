@@ -1,3 +1,4 @@
+
 const STATES = {
   LOBBY: 'lobby',
   LOADING: 'loading',
@@ -12,6 +13,14 @@ let aiScore = 0;
 let drawScore = 0;
 let roundNumber = 1;
 let isMuted = false;
+
+// Predictive AI Analytics - Markov Chain Tracking
+let playerHistory = [];
+const transitions = {
+  'Rock': { 'Rock': 0, 'Paper': 0, 'Scissors': 0 },
+  'Paper': { 'Rock': 0, 'Paper': 0, 'Scissors': 0 },
+  'Scissors': { 'Rock': 0, 'Paper': 0, 'Scissors': 0 }
+};
 
 // Current recognized player gesture in real-time
 let detectedGesture = 'None'; 
@@ -563,9 +572,54 @@ function evaluateRound() {
     // Let's be lenient: if hand was detected but we couldn't classify it perfectly, make it 'Rock'.
   }
   
-  // Select AI choice
+  // --- PREDICTIVE AI CHOICE ALGORITHM ---
+  let aiChoice = 'Rock';
   const choices = ['Rock', 'Paper', 'Scissors'];
-  const aiChoice = choices[Math.floor(Math.random() * choices.length)];
+  
+  if (playerHistory.length < 3) {
+    // If not enough data, make a random choice
+    aiChoice = choices[Math.floor(Math.random() * choices.length)];
+  } else {
+    // First-Order Markov Chain Prediction
+    const lastMove = playerHistory[playerHistory.length - 1];
+    const userLikelyTransitions = transitions[lastMove];
+    
+    // Determine user's most likely next choice based on transition counts
+    let predictedUserMove = 'Rock';
+    let maxCount = -1;
+    let tiedMoves = [];
+    
+    for (const move of choices) {
+      const count = userLikelyTransitions[move];
+      if (count > maxCount) {
+        maxCount = count;
+        predictedUserMove = move;
+        tiedMoves = [move];
+      } else if (count === maxCount) {
+        tiedMoves.push(move);
+      }
+    }
+    
+    // If there is a tie, choose randomly among the tied predicted moves
+    if (tiedMoves.length > 1) {
+      predictedUserMove = tiedMoves[Math.floor(Math.random() * tiedMoves.length)];
+    }
+    
+    // Choose the counter to the predicted user move
+    if (predictedUserMove === 'Rock') aiChoice = 'Paper';
+    else if (predictedUserMove === 'Paper') aiChoice = 'Scissors';
+    else if (predictedUserMove === 'Scissors') aiChoice = 'Rock';
+  }
+  
+  // Record history & update transitions for future prediction
+  if (playerHistory.length > 0) {
+    const prevMove = playerHistory[playerHistory.length - 1];
+    // Only count if both prevMove and lockedPlayerGesture are valid choices
+    if (transitions[prevMove] && transitions[lockedPlayerGesture]) {
+      transitions[prevMove][lockedPlayerGesture]++;
+    }
+  }
+  playerHistory.push(lockedPlayerGesture);
   
   // Update Cards to locked positions
   updateGestureIcon(playerGestureIcon, lockedPlayerGesture);
@@ -647,6 +701,12 @@ function resetScores() {
   aiScore = 0;
   drawScore = 0;
   roundNumber = 1;
+  
+  // Reset Markov history
+  playerHistory = [];
+  for (const m in transitions) {
+    transitions[m] = { 'Rock': 0, 'Paper': 0, 'Scissors': 0 };
+  }
   
   playerScoreText.textContent = playerScore;
   aiScoreText.textContent = aiScore;
